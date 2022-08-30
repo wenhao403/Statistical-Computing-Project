@@ -10,169 +10,156 @@ library(coda)
 library(forecast)
 library(patchwork)
 
-
-# Define UI for application that draws a histogram
+########  UI  ########
 ui <- fluidPage(
-    navbarPage('Statistical Computing Final Project',
-               #############################  tabPanel 1  ##############################
-               tabPanel('Density Plot', fluidPage(theme=shinytheme('flatly')),
-                        sidebarLayout(
-                          ###  sidebarLayout  ###
-                          sidebarPanel(width=3,
-                            sliderInput('mu', 'Mu :', min=-10, max=10, step=0.1, value=2),
-                            sliderInput('sigma', 'Sigma :', min=1, max=7, step=0.1, value=3),
-                            # h5('plot density : '),
-                            actionButton('go', 'Go')
-                          ),
-                          ###  mainPanel  ###
-                          mainPanel(
-                            tabsetPanel(
-                              ####################  Tab 1  ####################
-                              tabPanel('Density function',
+  navbarPage('Statistical Computing Final Project',
+             
+             ########  tabPanel 1  ########
+             tabPanel('Density Plot', fluidPage(theme=shinytheme('flatly')),
+                      
+                      ##  sidebarLayout
+                      sidebarLayout(
+                        sidebarPanel(width=3,
+                          sliderInput('mu', 'Mu :', min=-10, max=10, step=0.1, value=2),
+                          sliderInput('sigma', 'Sigma :', min=1, max=7, step=0.1, value=3),
+                          # h5('plot density : '),
+                          actionButton('go1_1', 'Go')),
+                        
+                        ##  mainPanel
+                        mainPanel(
+                          tabsetPanel(
+                            ########  Tab 1  ########
+                            tabPanel('Density function',
+                                     h3(),
+                                     withMathJax(),
+                                     splitLayout(cellWidths=500, 
+                                                 plotOutput("true_curve1_1", height=400),
+                                                 plotOutput("true_curve1_2", height=400)),
+                                     uiOutput('ex1_1')),
+                            
+                            ########  Tab 2  ########
+                            tabPanel('About',
+                                     h3(),
+                                     uiOutput('ex1_2')))
+                          )
+                        )
+                      ),
+             
+             ########  tabPanel 2  ########
+             tabPanel('Metropolis Hastings',
+                      
+                      ##  sidebarLayout
+                      sidebarLayout(
+                        sidebarPanel(width=3,
+                                     numericInput('n', 'MH sample size (a) :', value=20000),
+                                     actionButton('go2_1', 'Go1'),
+                                     h3(),
+                                     numericInput('gelman_plot_intercept_number', 'Gelman plot converage cut off (b) :', value=1000),
+                                     numericInput('acf_max_lag', 'ACF max lag :', value=100),
+                                     numericInput('acf_lag', 'ACF lag cut off (c) :', value=5),
+                                     actionButton('go2_2', 'Go2'),
+                                     h3(),
+                                     radioButtons("static_dynamic", "Static or Dynamic",
+                                                  choices = c('Static' = 'plot',
+                                                              'Dynamic' = 'plot2'),
+                                                  selected = 'plot'),
+                                     h5('Help : Final sample size = ( a - 4b ) / c')),
+                        
+                        ##  mainPanel
+                        mainPanel(
+                          tabsetPanel(
+                            ########  Tab 1  ########
+                            tabPanel('Gelman & ACF plot',
+                                     h4('Gelman plot'),
+                                     plotOutput('gelman_plot'),
+                                     h4('ACF plot'),
+                                     plotOutput('acf1')),
+                            
+                            ########  Tab 2  ########
+                            tabPanel('Sampling data',
+                                     conditionalPanel(
+                                       condition = "input.static_dynamic == 'plot'",
                                        h3(),
-                                       withMathJax(),
+                                       splitLayout(cellWidths=700, plotOutput("plot", height=400)),
+                                       tableOutput('values2_1'),
+                                       tableOutput('values2_2')),
+                                     conditionalPanel(
+                                       condition = "input.static_dynamic == 'plot2'",
+                                       h3(),
+                                       imageOutput('plot2'),
+                                       tableOutput('values_dynamic_hist2_1'),
+                                       tableOutput('values_dynamic_hist2_2'))),
+                            
+                            ########  Tab 3  ########
+                            tabPanel('About',
+                                     h3(),
+                                     uiOutput('ex2_1')))
+                          )
+                        )
+                      ),
+             
+             ########  tabPanel 3  ########
+             tabPanel('Coordiante Descent',
+                      
+                      ##  sidebarLayout
+                      sidebarLayout(
+                        sidebarPanel(width=3,
+                                     sliderInput('init_mu', 'Initial Mu :', min=-10, max=10, step=0.1, value=1),
+                                     sliderInput('init_sigma', 'Initial Sigma :', min=1, max=5, step=0.1, value=2.5),
+                                     numericInput('n_iter', 'Iterative Number :', value=100),
+                                     # h5('Interative :')
+                                     actionButton('go3_1', 'Go'),
+                                     h3(),
+                                     radioButtons("static_dynamic2", "Static or Dynamic",
+                                                  choices = c('Static' = 'plot_cd_para_static',
+                                                              'Dynamic' = 'plot_cd_para'),
+                                                  selected = 'plot_cd_para_static')),
+                        
+                        ##  mainPanel
+                        mainPanel(
+                          tabsetPanel(
+                            ########  Tab 1  ########
+                            tabPanel('Parameter estimate',
+                                     conditionalPanel(
+                                       condition = "input.static_dynamic2 == 'plot_cd_para_static'",
+                                       h3(),
                                        splitLayout(cellWidths=500, 
-                                                   plotOutput("true_curve", height=400),
-                                                   plotOutput("true_curve2", height=400)),
-                                       # plotOutput('true_curve'),
-                                       uiOutput('ex1')
-                              ),
-                              ####################  Tab 2  ####################
-                              tabPanel('About',
+                                                   plotOutput("plot_cd_para_static", height=500),
+                                                   plotOutput("plot_cd_loss_static", height=500)),
+                                       tableOutput('values3_1')),
+                                     conditionalPanel(
+                                       condition = "input.static_dynamic2 == 'plot_cd_para'",
                                        h3(),
-                                       uiOutput('ex1_2')
-                              )
-                            )
+                                       splitLayout(cellWidths=500,
+                                                   imageOutput("plot_cd_para", height=500),
+                                                   imageOutput("plot_cd_loss", height=500)),
+                                       tableOutput('values3_2'))),
+                            
+                            ########  Tab 2  ########
+                            tabPanel('Log-likelihood',
+                                     h3('Log-Likelihood'),
+                                     plotlyOutput('plot_ll_3d'),
+                                     uiOutput('ex3_1'),
+                                     plotlyOutput('plot_ll_heatmap')),
+                            
+                            ########  Tab 3  ########
+                            tabPanel('About',
+                                     h3(),
+                                     helpText('Log-likelihood function of \\( (\\mu,\\sigma) \\): '),
+                                     uiOutput('ex3_2')))
                           )
+                        )
                       )
-               ),
-               
-               #############################  tabPanel 2  ##############################
-               tabPanel('Metropolis Hastings',
-                        ###  sidebarLayout  ###
-                        sidebarLayout(
-                          sidebarPanel(width=3,
-                                       numericInput('n', 'MH sample size (a) :', value=20000),
-                                       actionButton('go2', 'Go1'),
-                                       h3(),
-                                       numericInput('gelman_plot_intercept_number', 'Gelman plot converage cut off (b) :', value=1000),
-                                       numericInput('acf_max_lag', 'ACF max lag :', value=100),
-                                       numericInput('acf_lag', 'ACF lag cut off (c) :', value=5),
-                                       actionButton('go2_2', 'Go2'),
-                                       h3(),
-                                       radioButtons("static_dynamic", "Static or Dynamic",
-                                                    choices = c('Static' = 'plot',
-                                                                'Dynamic' = 'plot2'),
-                                                    selected = 'plot'),
-                                       h5('Help : Final sample size = ( a - 4b ) / c')
-                          ),
-                          ###  mainPanel  ###
-                          mainPanel(
-                            tabsetPanel(
-                              ####################  Tab 1  ####################
-                              tabPanel('Gelman & ACF plot',
-                                       h4('Gelman plot'),
-                                       plotOutput('gelman_plot'),
-                                       h4('ACF plot'),
-                                       plotOutput('acf1'),
-                                       # plotOutput('acf2')
-                              ),
-                              ####################  Tab 2  ####################
-                              tabPanel('Sampling data',
-                                       conditionalPanel(
-                                         condition = "input.static_dynamic == 'plot'",
-                                         h3(),
-                                         splitLayout(cellWidths=700, 
-                                                     plotOutput("plot", height=400)),
-                                         # plotOutput('plot'),
-                                         tableOutput('values'),
-                                         tableOutput('values2')
-                                         ),
-                                       conditionalPanel(
-                                         condition = "input.static_dynamic == 'plot2'",
-                                         h3(),
-                                         imageOutput('plot2'),
-                                         tableOutput('values_dynamic_hist'),
-                                         tableOutput('values_dynamic_hist2')
-                                         )
-                                
-                              ),
-                              ####################  Tab 3  ####################
-                              tabPanel('About',
-                                       h3(),
-                                       uiOutput('ex2_3')
-                              )
-                            )
-                          )
-                        )
-                ),
-               
-               #############################  tabPanel 3  ##############################
-               tabPanel('Coordiante Descent',
-                        ###  sidebarLayout  ###
-                        sidebarLayout(
-                          sidebarPanel(width=3,
-                                       sliderInput('init_mu', 'Initial Mu :', min=-10, max=10, step=0.1, value=1),
-                                       sliderInput('init_sigma', 'Initial Sigma :', min=1, max=5, step=0.1, value=2.5),
-                                       numericInput('n_iter', 'Iterative Number :', value=100),
-                                       # h5('Interative :')
-                                       actionButton('go_iter', 'Go'),
-                                       h3(),
-                                       radioButtons("static_dynamic2", "Static or Dynamic",
-                                                    choices = c('Static' = 'plot_cd_para_static',
-                                                                'Dynamic' = 'plot_cd_para'),
-                                                    selected = 'plot_cd_para_static'),
-                          ),
-                          
-                          ###  mainPanel  ###
-                          mainPanel(
-                            tabsetPanel(
-                              ####################  Tab 1  ####################
-                              tabPanel('Parameter estimate',
-                                       conditionalPanel(
-                                         condition = "input.static_dynamic2 == 'plot_cd_para_static'",
-                                         h3(),
-                                         splitLayout(cellWidths=500, 
-                                                     plotOutput("plot_cd_para_static", height=500),
-                                                     plotOutput("plot_cd_loss_static", height=500)),
-                                         tableOutput('values5')
-                                       ),
-                                       conditionalPanel(
-                                         condition = "input.static_dynamic2 == 'plot_cd_para'",
-                                         h3(),
-                                         splitLayout(cellWidths=500,
-                                                     imageOutput("plot_cd_para", height=500),
-                                                     imageOutput("plot_cd_loss", height=500)),
-                                         tableOutput('values6')
-                                       )
-                                  
-                              ),
-                              ####################  Tab 2  ####################
-                              tabPanel('Log-likelihood',
-                                       h3('Log-Likelihood'),
-                                       plotlyOutput('plot_ll_3d'),
-                                       uiOutput('ex3'),
-                                       # tableOutput('values4'),
-                                       plotlyOutput('plot_ll_heatmap')
-                              ),
-                              ####################  Tab 3  ####################
-                              tabPanel('About',
-                                       h3(),
-                                       helpText('Log-likelihood function of \\( (\\mu,\\sigma) \\): '),
-                                       uiOutput('ex3_3')
-                              )
-                            )
-                          )
-                        )
-               )
-    )
-)
+             )
+  )
 
 
 
 
-#############################  global function  #############################  
-f = function(x, mu, sigma) {
+
+
+##  global function  
+f = function(x, mu, sigma){
   x[x>=0] = 1/(sigma*sqrt(2*pi)) * (exp((-1/2)*((x[x>=0]+mu)/sigma)^2) + exp((-1/2)*((x[x>=0]-mu)/sigma)^2))
   x[x<0] = 0
   return(x)
@@ -197,7 +184,6 @@ ll = function(para, input){
   - ((-n/2) * log(2*pi*sigma^2) + sum(log(exp((-1/(2*sigma^2))*(input-mu)^2) + exp((-1/(2*sigma^2))*(input+mu)^2)))) 
 }
 
-
 Sampling_MH = function(init,mu,sigma, n){
   x = c()
   succ = c()
@@ -213,11 +199,10 @@ Sampling_MH = function(init,mu,sigma, n){
 }
 
 
-
-#############################  server  #############################  
-server <- function(input, output) {
+########  SERVER  ########
+server <- function(input, output){
     
-    #############################  variables  #############################
+    ##  variables  
     # react_ = reactiveValues(n=input$n)
     # observe({
     #   mc1 <<- mcmc(Sampling_MH(1, input$mu, input$sigma, (input$n)/4))
@@ -227,16 +212,6 @@ server <- function(input, output) {
     # })
   
     react = reactive({
-      # ## reject sampling
-      # u = runif(input$n, 0, 1)
-      # # y ~ U(max(0,mean-3.5*sd), mean+3.5*sd) = U(a, b)
-      # a = max(0, true_mean(input$mu, input$sigma) - 3.5*true_sd(input$mu, input$sigma))
-      # b = true_mean(input$mu, input$sigma) + 3.5*true_sd(input$mu, input$sigma)
-      # y = runif(input$n, a, b)
-      # M = max((b-a) * f(y, input$mu, input$sigma))
-      # x = y[u <= f(y, input$mu, input$sigma)/(M*g(y, a, b))]
-      
-      ############
       # MH
       mc1 = mcmc(Sampling_MH(1, input$mu, input$sigma, input$n/4))
       mc2 = mcmc(Sampling_MH(2, input$mu, input$sigma, input$n/4))
@@ -251,7 +226,6 @@ server <- function(input, output) {
       
       x = tmp_x[seq(1, length(tmp_x), by=input$acf_lag)]
       
-      
       df_fold_norm_rs = data.frame(sample=1:length(x), x=x)
       
       df_ani = df_fold_norm_rs %>%
@@ -263,7 +237,6 @@ server <- function(input, output) {
       # h: histogram
       h = hist(df_fold_norm_rs$x, 30, plot=F)
       
-      
       true_mean = true_mean(input$mu, input$sigma)
       est = mean(x)
       est_se = sqrt((1/length(x)) * (1/(length(x)-1))*sum((x-mean(x))^2)) # s.e.(estimator)
@@ -273,17 +246,18 @@ server <- function(input, output) {
       est_var = mean(y)
       est_var_se = sqrt((1/length(y)) * (1/(length(y)-1))*sum((y-mean(y))^2)) # s.e.(estimator)
       
-      
       ll_fix_sigma = function(input, mu){
         n = length(input$x)
         sigma = input$sigma
         - ((-n/2) * log(2*pi*sigma^2) + sum(log(exp((-1/(2*sigma^2))*(input$x-mu)^2) + exp((-1/(2*sigma^2))*(input$x+mu)^2)))) 
       }
+      
       ll_fix_mu = function(input, sigma){
         n = length(input$x)
         mu = input$mu
         - ((-n/2) * log(2*pi*sigma^2) + sum(log(exp((-1/(2*sigma^2))*(input$x-mu)^2) + exp((-1/(2*sigma^2))*(input$x+mu)^2))))
       }
+      
       ## coordinte descent
       coordinate.descent = function(init, n.iter){
         para = matrix(NA, n.iter, 2)  # para=(mu, sigma)
@@ -310,6 +284,7 @@ server <- function(input, output) {
         }
         return(list(para=para, loss=loss, num=num))
       }
+      
       cd = coordinate.descent(init=c(input$init_mu, input$init_sigma), n.iter=input$n_iter)
       cd_para = cd$para
       cd_loss = cd$loss
@@ -317,7 +292,6 @@ server <- function(input, output) {
       df_cd_para = data.frame(time=rep(1:input$n_iter, 2), para=c(cd_para[,1], cd_para[,2]),
                            name=c(rep('mu', input$n_iter), rep('sigma', input$n_iter)))
       df_cd_loss = data.frame(time=seq(1,input$n_iter,by=1), loss=cd_loss, name=rep('loss',input$n_iter))
-      
       
       ll_outer = function(mu, sigma){
         n = length(x)
@@ -346,15 +320,13 @@ server <- function(input, output) {
                    test_x=test_x, test_y=test_y, tmp_m=tmp_m,
                    density_max=density_max,
                    mc1234=mc1234, acf_x=x)
-    })
+      })
 
     
-    
-    #############################  tabPanel 1  #############################
-    ## tabPanel1 - Tab1
-    output$true_curve = renderPlot({
-      input$go # values: 0, 1, 2, 3,...
-      
+    ########  tabPanel 1  ########
+    ########  Tab1  ########
+    output$true_curve1_1 = renderPlot({
+      input$go1_1 # values: 0, 1, 2, 3,...
       isolate(
         ggplot(NULL, aes(-40,40)) +
           geom_area(stat='function', fun=dnorm, args=list(input$mu, input$sigma), fill='#F8766D', xlim=c(-40, 0), alpha=0.9) +
@@ -366,12 +338,11 @@ server <- function(input, output) {
           theme(plot.title=element_text(size=20),
                 axis.title=element_text(size=15)) +
           xlim(input$mu-3.5*input$sigma, input$mu+3.5*input$sigma) +
-          ylim(c(0, react()$density_max))
-      )
-    })
-    output$true_curve2 = renderPlot({
-      input$go
-      
+          ylim(c(0, react()$density_max)))
+      })
+    
+    output$true_curve1_2 = renderPlot({
+      input$go1_1
       isolate(
         ggplot(NULL, aes(0, 40)) + 
           geom_area(stat="function", fun=f, args=list(abs(input$mu), input$sigma), fill="#F8766D", alpha=0.9) +
@@ -382,14 +353,14 @@ server <- function(input, output) {
           theme(plot.title=element_text(size=20),
                 axis.title=element_text(size=15)) +
           xlim(c(0, abs(input$mu)+3.5*input$sigma)) +
-          ylim(c(0, react()$density_max))
-      )
-    })
+          ylim(c(0, react()$density_max)))
+      })
     
-    output$ex1 = renderUI({
+    output$ex1_1 = renderUI({
       withMathJax(helpText('Folded normal distribution:  $$f(x;\\mu,\\sigma^2)=\\frac{1}{\\sqrt{2\\pi\\sigma^2}}e^{-(x-\\mu)^2/(2\\sigma^2)}+\\frac{1}{\\sqrt{2\\pi\\sigma^2}}e^{-(x+\\mu)^2/(2\\sigma^2)},\ 0<x<\\infty$$'))
-    })
+      })
     
+    ########  Tab2  ########
     output$ex1_2 = renderUI({
       withMathJax(
         helpText('Defintion : '),
@@ -401,19 +372,35 @@ server <- function(input, output) {
         helpText('Mean of folded distribution :'),
         helpText('$$E(X)=\\sigma\\sqrt{\\frac{2}{\\pi}}\\text{exp}(\\frac{-\\mu^{2}}{2\\sigma^{2}})+\\mu\\text{erf}(\\frac{\\mu}{\\sqrt{2\\sigma^2}})$$'),
         helpText('Variance :'),
-        helpText('$$Var(X)=\\mu^2+\\sigma^2-E^2(X)$$')
-        
-      )
-    })
+        helpText('$$Var(X)=\\mu^2+\\sigma^2-E^2(X)$$'))
+      })
     
     
-    #############################  tabPanel 2  #############################
-    ## tabPanel2 - Tab1 - Static
+    ########  tabPanel 2  ########
+    ########  Tab1  ########
+    output$gelman_plot = renderPlot({
+      input$go1_1
+      input$go2_1
+      isolate(gelman.plot(react()$mc1234))
+      })
+    output$acf1 = renderPlot({
+      input$go1_1
+      input$go2_1
+      input$go2_2
+      isolate({
+        ggAcf(react()$x, lag.max=input$acf_max_lag) +
+          ggtitle('ACF plot') +
+          ggAcf(react()$acf_x, lag.max=input$acf_max_lag) +
+          ggtitle('Lag cut off ACF plot')
+        })
+      })
+    
+    ########  Tab2  ########
+    ## Static
     output$plot = renderPlot({
-      input$go
-      input$go2
-      input$go_2
-      
+      input$go1_1
+      input$go2_1
+      input$go2_2
       isolate({
         p_anim = react()$df_ani %>%
           ggplot(aes(x=x)) +
@@ -428,15 +415,14 @@ server <- function(input, output) {
           coord_cartesian(xlim=c(react()$h$breaks[1], react()$h$breaks[length(react()$h$breaks)]),
                           ylim=c(0, max(react()$h$density)*1.2))
         p_anim
+        })
       })
-    })
     
-    # tabPanel2 - Tab1 - Dynamic
+    ## Dynamic
     output$plot2 = renderImage({
-      input$go
-      input$go2
+      input$go1_1
+      input$go2_1
       input$go2_2
-      
       isolate({
         p_anim = react()$df_ani %>%
           ggplot(aes(x=x)) +
@@ -459,63 +445,50 @@ server <- function(input, output) {
         anim_save("outfile.gif", animate(anim, renderer=gifski_renderer(loop=T), width=700, height=400)) # New
         # Return a list containing the filename
         list(src="outfile.gif", contentType="image/gif") #, width=1000, height=500
-      })
+        })
       }, deleteFile = T)
     
-    
-    
-    
-    ## tabPanel2 - Tab1
-    sliderValues = reactive({
+    sliderValues2_1 = reactive({
       data.frame(
         'Mu' = input$mu,
         'Sigma' = input$sigma,
         'Mean' = react()$true_mean,
         'Var' = react()$true_var,
-        'Sample_Size' = length(react()$acf_x) # 檢查完收斂後的剩餘樣本數
-        # 'Efficiency' = 1/react()$M,
-        # 'Sample_Efficiency' = length(react()$x) / input$n
-      )
-    })
-    output$values <- renderTable({
-      input$go
-      input$go2
+        'Sample_Size' = length(react()$acf_x))  # 檢查完收斂後的剩餘樣本數
+      })
+    output$values2_1 <- renderTable({
+      input$go1_1
+      input$go2_1
       input$go2_2
-      isolate(sliderValues())
-    })
-    output$values_dynamic_hist = renderTable({
-      input$go
-      input$go2
+      isolate(sliderValues2_1())
+      })
+    output$values_dynamic_hist2_1 = renderTable({
+      input$go1_1
+      input$go2_1
       input$go2_2
-      isolate(sliderValues())
-    })
+      isolate(sliderValues2_1())
+      })
     
-    
-    sliderValues2 = reactive({
+    sliderValues2_2 = reactive({
       df2 = data.frame(
         'Est_mean' = c(react()$est, react()$est_se),
-        'Est_var' = c(react()$est_var, react()$est_var_se)
-      )
-    })
-    output$values2 <- renderTable({
-      input$go
-      input$go2
+        'Est_var' = c(react()$est_var, react()$est_var_se))
+      })
+    output$values2_2 <- renderTable({
+      input$go1_1
+      input$go2_1
       input$go2_2
-      isolate(sliderValues2())
-    })
-    output$values_dynamic_hist2 = renderTable({
-      input$go
-      input$go2
+      isolate(sliderValues2_2())
+      })
+    output$values_dynamic_hist2_2 = renderTable({
+      input$go1_1
+      input$go2_1
       input$go2_2
-      isolate(sliderValues2())
-    })
+      isolate(sliderValues2_2())
+      })
     
-    
-    output$ex2 = renderUI({
-      withMathJax(helpText('Reject sampling 3d M plot'))
-    })
-    
-    output$ex2_3 = renderUI({
+    ########  Tab3  ########
+    output$ex2_1 = renderUI({
       withMathJax(
         helpText('target pdf : $$X \\sim f(x;\\mu,\\sigma^2)=\\frac{1}{\\sqrt{2\\pi\\sigma^2}}e^{-(x-\\mu)^2/(2\\sigma^2)}+\\frac{1}{\\sqrt{2\\pi\\sigma^2}}e^{-(x+\\mu)^2/(2\\sigma^2)},\\ 0<x<\\infty$$'),
         helpText('jump proposal pdf : $$q(x;\\mu,\\sigma^2)=\\frac{1}{x\\sigma\\sqrt{2\\pi}}e^{-(\\text{ln}x-\\mu)^2/(2\\sigma^2)},\\ 0<x<\\infty,\\ \\text{ i.e. } q \\sim \\text{logN}(\\mu, \\sigma^2)$$'),
@@ -526,70 +499,16 @@ server <- function(input, output) {
         helpText('\\( \\ \\ \\ \\text{ 1. draw } x^* \\sim q(x) \\)'),
         helpText('\\( \\ \\ \\ \\text{ 2. calculate the ratio } r=\\frac{f(x^*)}{f(x^{(t-1)})}\\frac{q(x^{(t-1)})}{q(x^*)} \\)'),
         helpText('\\( \\ \\ \\ \\text{ 3. set } x^{(t)}=x^* \\text{ with probabilty min(1,}r)\\ ;\\ x^{(t-1)} \\text{ otherwise } \\)'),
-        helpText('\\( \\text{Step3 : Check converagence and independence} \\)')
-      )
-    })
-    
-    ###############
-    ## tabPanel2 - Tab2
-    output$gelman_plot = renderPlot({
-      input$go
-      input$go2
-      isolate(gelman.plot(react()$mc1234))
-    })
-    output$acf1 = renderPlot({
-      input$go
-      input$go2
-      input$go2_2
-      isolate({
-        ggAcf(react()$x, lag.max=input$acf_max_lag) +
-          ggtitle('ACF plot') +
-          ggAcf(react()$acf_x, lag.max=input$acf_max_lag) +
-          ggtitle('Lag cut off ACF plot')
-          
+        helpText('\\( \\text{Step3 : Check converagence and independence} \\)'))
       })
-    })
-    # output$acf2 = renderPlot({
-    #   input$go
-    #   input$go2
-    #   input$go2_2
-    #   isolate(ggAcf(react()$acf_x))  # check lag cut off 後的 acf
-    # })
-    
-    ## tabPanel2 - Tab2
-    # output$plot_m_3d = renderPlotly({
-    #   plot_ly(x=react()$mu_v, y=react()$sigma_v, z=react()$M_m, type='surface') %>%
-    #     layout(scene = list(xaxis=list(title='mu'),
-    #                         yaxis=list(title='sigma'),
-    #                         zaxis=list(title='M')))
-    # })
-    
-    ## tabPanel2 - Tab2
-    # sliderValues3 = reactive({
-    #   data.frame(
-    #     'Min(M)' = min(react()$M_m),
-    #     'Max(M)' = max(react()$M_m)
-    #   )
-    # })
-    # output$values3 <- renderTable({
-    #   sliderValues3()
-    # })
-    
-    output$ex1 = renderUI({
-      withMathJax(helpText('Folded normal distribution:  $$f(x;\\mu,\\sigma^2)=\\frac{1}{\\sqrt{2\\pi\\sigma^2}}e^{-(x-\\mu)^2/(2\\sigma^2)}+\\frac{1}{\\sqrt{2\\pi\\sigma^2}}e^{-(x+\\mu)^2/(2\\sigma^2)},\ 0<x<\\infty$$'))
-    })
     
     
-    
-    
-    
-    #############################  tabPanel 3  #############################
+    ########  tabPanel 3  ########
     output$plot_cd_para_static = renderPlot({
-      input$go
-      input$go2
+      input$go1_1
+      input$go2_1
       input$go2_2
-      input$go_iter
-      
+      input$go3_1
       isolate({
         react()$df_cd_para %>%
           ggplot(aes(x=time, y=para, group=name, color=name)) +
@@ -603,16 +522,16 @@ server <- function(input, output) {
                 axis.title=element_text(size=15),
                 legend.title=element_text(size=15),
                 legend.text=element_text(size=15)) +
-          ylab('value') 
+          ylab('value')
+        })
       })
-    })
     
     
     output$plot_cd_loss_static = renderPlot({
-      input$go
-      input$go2
+      input$go1_1
+      input$go2_1
       input$go2_2
-      input$go_iter
+      input$go3_1
       
       isolate({
         react()$df_cd_loss %>%
@@ -628,39 +547,35 @@ server <- function(input, output) {
                 legend.title=element_text(size=15),
                 legend.text=element_text(size=15)) +
           ylab('loss')
+        })
       })
-    })
     
-    sliderValues5 = reactive({
+    sliderValues3_1 = reactive({
       data.frame(
         'mu_hat' = react()$cd_para[length(react()$cd_para[,1]), 1],
-        'sigma_hat' = react()$cd_para[length(react()$cd_para[,2]), 2]
-      )
-    })
-    output$values5 <- renderTable({
-      input$go
-      input$go2
+        'sigma_hat' = react()$cd_para[length(react()$cd_para[,2]), 2])
+      })
+    output$values3_1 <- renderTable({
+      input$go1_1
+      input$go2_1
       input$go2_2
-      input$go_iter
-      isolate(sliderValues5())
-    })
-    output$values6 <- renderTable({
-      input$go
-      input$go2
+      input$go3_1
+      isolate(sliderValues3_1())
+      })
+    output$values3_2 <- renderTable({
+      input$go1_1
+      input$go2_1
       input$go2_2
-      input$go_iter
-      isolate(sliderValues5())
-    })
-    
+      input$go3_1
+      isolate(sliderValues3_1())
+      })
     
     output$plot_cd_para = renderImage({
-      input$go
-      input$go2
+      input$go1_1
+      input$go2_1
       input$go2_2
-      input$go_iter
-      
+      input$go3_1
       isolate({
-        
         p_anim2 = react()$df_cd_para %>%
           ggplot(aes(x=time, y=para, group=name, color=name)) +
           geom_line(size=1.5) +
@@ -678,23 +593,17 @@ server <- function(input, output) {
         
         anim2 = p_anim2 +
           transition_reveal(time)
-        
         anim_save("outfile2.gif", animate(anim2, renderer=gifski_renderer(loop=T)))
-        
         # Return a list containing the filename
         list(src="outfile2.gif", contentType="image/gif")
-      })
-      
-    }, deleteFile = T)
-    
-    
+        })
+      }, deleteFile = T)
     
     output$plot_cd_loss = renderImage({
-      input$go
-      input$go2
+      input$go1_1
+      input$go2_1
       input$go2_2
-      input$go_iter
-      
+      input$go3_1
       isolate({
         p_anim3 = react()$df_cd_loss %>%
           ggplot(aes(x=time, y=loss, color=name)) +
@@ -713,25 +622,18 @@ server <- function(input, output) {
         
         anim3 = p_anim3 +
           transition_reveal(time)
-        
         anim_save("outfile3.gif", animate(anim3, renderer=gifski_renderer(loop=T)))
-        
         # Return a list containing the filename
         list(src="outfile3.gif", contentType="image/gif")
-      })
-      
-    }, deleteFile = T)
-    
-    
+        })
+      }, deleteFile = T)
     
     output$plot_ll_3d = renderPlotly({
-      input$go
-      input$go2
+      input$go1_1
+      input$go2_1
       input$go2_2
-      input$go_iter
-      
+      input$go3_1
       isolate({
-        #fig1=
         fig1 = plot_ly(x=react()$test_x, y=react()$test_y, z=react()$tmp_m, type='surface') %>%
           layout(scene = list(xaxis=list(title='mu'),
                               yaxis=list(title='sigma'),
@@ -743,19 +645,18 @@ server <- function(input, output) {
                           react()$cd_para[length(react()$cd_para[,2]), 2]),
                         input=react()$acf_x),
                   type='scatter3d', mode='markers', color=I('red')) #add_trace會有Warning, 但可顯示
+        })
       })
-    })
     
-    output$ex3 = renderUI({
+    output$ex3_1 = renderUI({
       withMathJax(helpText('Log-likelihood function : $$\\text{logL}(\\mu, \\sigma)=\\frac{-n}{2}\\text{log}(2\\pi\\sigma^2)+\\sum_{i=1}^{n}\\text{log}(e^{-(x_{i}-\\mu)^2/(2\\sigma^2)}+e^{-(x_{i}+\\mu)^2/(2\\sigma^2)})$$'))
-    })
+      })
     
     output$plot_ll_heatmap = renderPlotly({
-      input$go
-      input$go2
+      input$go1_1
+      input$go2_1
       input$go2_2
-      input$go_iter
-      
+      input$go3_1
       isolate({
         fig2 = plot_ly(x=react()$test_x, y=react()$test_y, z=react()$tmp_m, type = 'heatmap') %>%
           layout(xaxis=list(title='mu'),
@@ -764,27 +665,10 @@ server <- function(input, output) {
                   x=react()$cd_para[length(react()$cd_para[,1]), 1],
                   y=react()$cd_para[length(react()$cd_para[,2]), 2], 
                   type='scatter', mode='markers', color=I('red')) #add_trace會有Warning, 但可顯示
+        })
       })
-    })
     
-    
-    sliderValues4 = reactive({
-      data.frame(
-        'Max_Log_likelihood' = max(react()$tmp_m)
-      )
-    })
-    output$values4 <- renderTable({
-      input$go
-      input$go2
-      input$go2_2
-      input$go_iter
-      isolate(sliderValues4())
-    })
-    
-    
-    
-    
-    output$ex3_3 = renderUI({
+    output$ex3_2 = renderUI({
       withMathJax(
         helpText('$$\\text{logL}(\\mu, \\sigma)=\\frac{-n}{2}\\text{log}(2\\pi\\sigma^2)+\\sum_{i=1}^{n}\\text{log}(e^{-(x_{i}-\\mu)^2/(2\\sigma^2)}+e^{-(x_{i}+\\mu)^2/(2\\sigma^2)})$$'),
         helpText('coodinate descent algorithm : '),
@@ -792,19 +676,8 @@ server <- function(input, output) {
         helpText('\\( \\text{Step2 : Set initial value of } \\theta^{(0)} = (\\mu^{(0)}, \\sigma^{(0)}) \\)'),
         helpText('\\( \\text{Step3 : Fix } \\sigma^{(t)} \\text{ and get } \\mu^{(t+1)} = arg \\underset{\\mu} min\\ g(\\mu|\\sigma^{(t)}) \\)'),
         helpText('\\( \\text{Step4 : Fix } \\mu^{(t+1)} \\text{ and get } \\sigma^{(t+1)} = arg \\underset{\\sigma} min\\ g(\\sigma|\\mu^{(t+1)}) \\)'),
-        helpText('\\( \\text{Step5 : Repeat step3,4 until all of } |\\mu^{(t+1)}-\\mu^{(t)}| < 10^{-10},\\ |\\sigma^{(t+1)}-\\sigma^{(t)}| < 10^{-10} \\)')
-      )
-    })
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+        helpText('\\( \\text{Step5 : Repeat step3,4 until all of } |\\mu^{(t+1)}-\\mu^{(t)}| < 10^{-10},\\ |\\sigma^{(t+1)}-\\sigma^{(t)}| < 10^{-10} \\)'))
+      })
     
 }
 
