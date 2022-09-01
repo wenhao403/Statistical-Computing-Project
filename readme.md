@@ -12,7 +12,7 @@
 
 以 folded normal distribution 為主要分配，讓使用者自行調控該分配對應的參數，並透過視覺化的方式比較 folded normal 與 normal distribution 的相同與相異之處，以及該分配的基本介紹  
 
-![image](page1_1.png)
+![image](picture/page1_1.png)
 
 **備註**： 
 folded normal 與 normal distribution 皆具有兩個參數分別為 $\mu$, $\sigma$，但此處 $\mu$, $\sigma$ 的意義與 normal distribution 不相同 !!!  
@@ -31,7 +31,7 @@ folded normal 與 normal distribution 皆具有兩個參數分別為 $\mu$, $\si
 
 **備註**：若有效樣本數太大，Dynamic 製造的過程需要花上一段時間（預設約1-2分鐘）
   
-![image](page2_2.gif)
+![image](picture/page2_2.gif)
 
 「*Wikipedia Metropolis–Hastings algorithm*」: https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm
 
@@ -43,7 +43,7 @@ folded normal 與 normal distribution 皆具有兩個參數分別為 $\mu$, $\si
 
 利用 `Page 2.2` 所抽出的樣本反求 **Maximum Likelihood Estimation(MLE)** 透過 Coordinate Descent 的數值方法，並驗證與最初設定的參數一否一致，其中 *Coordinate Descent 起始值*、*有效樣本數等*，皆會影響最終的收斂結果，同時也可以於左側儀表板點選 Dynamic 按鈕，此時靜態的圖片將會以影像的方式呈現出估計收斂的過程  
 
-![image](page3_1.gif)
+![image](picture/page3_1.gif)
 
 並於 `Page 3.2` 用視覺方式呈現 Log-likelihood 的長相，以及 MLE 的位置
 
