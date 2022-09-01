@@ -12,6 +12,8 @@
 
 以 folded normal distribution 為主要分配，讓使用者自行調控該分配對應的參數，並透過視覺化的方式比較 folded normal 與 normal distribution 的相同與相異之處，以及該分配的基本介紹  
 
+![image](page1_1.png)
+
 **備註**： 
 folded normal 與 normal distribution 皆具有兩個參數為($\mu$, $\sigma$)，但此處 $\mu$, $\sigma$ 的意義與 normal distribution 不相同 !!!  
 
