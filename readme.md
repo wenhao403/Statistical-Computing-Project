@@ -31,6 +31,8 @@ folded normal 與 normal distribution 皆具有兩個參數分別為 $\mu$, $\si
 
 **備註**：若有效樣本數太大，Dynamic 製造的過程需要花上一段時間（預設約1-2分鐘）
   
+![image](page2_2.gif)
+
 「*Wikipedia Metropolis–Hastings algorithm*」: https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm
 
 
