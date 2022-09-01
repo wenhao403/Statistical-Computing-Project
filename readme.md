@@ -3,7 +3,6 @@
 ## 【專案宗旨】
 讓使用者輕易地透過點擊體驗到抽驗、篩選樣本，以及估計的整個流程，並全程轉為可視化的圖像及影像  
 
-<br>
 
 ## 【內容】
 網站內容分為三大主頁，以及主頁內的副頁
@@ -18,7 +17,6 @@ folded normal 與 normal distribution 皆具有兩個參數為($\mu$, $\sigma$)�
 
 「*Wikipedia Folded normal distribution*」: https://en.wikipedia.org/wiki/Folded_normal_distribution
 
-<br>
 
 ### 2. Metropolis Hastings  
     2.1 Gelman & ACF plot  
@@ -33,7 +31,6 @@ folded normal 與 normal distribution 皆具有兩個參數為($\mu$, $\sigma$)�
   
 「*Wikipedia Metropolis–Hastings algorithm*」: https://en.wikipedia.org/wiki/Metropolis%E2%80%93Hastings_algorithm
 
-<br>
 
 ### 3. Coordinate Descent  
     3.1 Parameter estimate  
@@ -46,7 +43,6 @@ folded normal 與 normal distribution 皆具有兩個參數為($\mu$, $\sigma$)�
 
 「*Wikipedia Coordinate descent*」: https://en.wikipedia.org/wiki/Coordinate_descent
 
-<br>
 
 ## 備註：
 > 目前已將網頁架設到雲端上，但因 Server 時常不太穩定，故要操作實際成果建議還是將 app.R 載入電腦中，於本地執行即可看見，並且相對穩定。  
