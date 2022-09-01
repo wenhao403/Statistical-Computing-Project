@@ -10,6 +10,11 @@ library(coda)
 library(forecast)
 library(patchwork)
 
+## 2022.9.1
+library(gifski)
+library(rsconnect)
+
+
 ########  UI  ########
 ui <- fluidPage(
   navbarPage('Statistical Computing Final Project',
@@ -447,6 +452,7 @@ server <- function(input, output){
         list(src="outfile.gif", contentType="image/gif") #, width=1000, height=500
         })
       }, deleteFile = T)
+    
     
     sliderValues2_1 = reactive({
       data.frame(
