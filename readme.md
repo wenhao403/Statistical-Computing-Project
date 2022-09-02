@@ -54,4 +54,4 @@ folded normal 與 normal distribution 皆具有兩個參數分別為 $\mu$, $\si
 目前已將網頁架設到雲端上，但因 Server 時常不太穩定，故要操作實際成果建議還是將 app.R 載入電腦中，於本地執行即可看見，並且相對穩定。  
 網頁連結：https://w1lpqb-0-0.shinyapps.io/SC_final/
 
-## 若有發現任何問題再煩請指教，感謝您的觀看！
+## 若有發現任何問題再煩請指教，感謝您的觀看！ 
